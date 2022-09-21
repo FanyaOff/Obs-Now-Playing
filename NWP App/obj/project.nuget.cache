@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "8g7FrZS6SqmAfcKeEQOd+ZoQvBKrpsUYSyxH8+WKSs2wiHcITgG39OHUoAxFQH+o9fgnYJBgcteLqdbGftl4Eg==",
+  "success": true,
+  "projectFilePath": "D:\\projects\\NWP App\\Obs-Now-Playing\\NWP App\\NWP App.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Fan9\\.nuget\\packages\\microsoft.windows.sdk.contracts\\10.0.22621.2\\microsoft.windows.sdk.contracts.10.0.22621.2.nupkg.sha512",
+    "C:\\Users\\Fan9\\.nuget\\packages\\system.runtime.interopservices.windowsruntime\\4.3.0\\system.runtime.interopservices.windowsruntime.4.3.0.nupkg.sha512",
+    "C:\\Users\\Fan9\\.nuget\\packages\\system.runtime.windowsruntime\\4.6.0\\system.runtime.windowsruntime.4.6.0.nupkg.sha512",
+    "C:\\Users\\Fan9\\.nuget\\packages\\system.runtime.windowsruntime.ui.xaml\\4.6.0\\system.runtime.windowsruntime.ui.xaml.4.6.0.nupkg.sha512"
+  ],
+  "logs": []
+}
