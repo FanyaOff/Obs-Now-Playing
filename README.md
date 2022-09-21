@@ -7,6 +7,8 @@ Show now playing song into OBS Studio
 
 * Support any music/video/streaming platform
 
+* Log System
+
 # If you have error when compiling
 
 Just install this [package](https://www.nuget.org/packages/Microsoft.Windows.SDK.Contracts)
@@ -29,3 +31,5 @@ Just install this [package](https://www.nuget.org/packages/Microsoft.Windows.SDK
 ![image](https://user-images.githubusercontent.com/73064979/188281804-758f959b-9fdd-4b53-b80a-442c3ffec951.png)
 
 7. Done!
+
+# If you have any questions, open an issue and attach latest.log file or error text
