@@ -7,6 +7,10 @@ Show now playing song into OBS Studio
 
 * Support any music/video/streaming platform
 
+# If you have error when compiling
+
+Just install this [package](https://www.nuget.org/packages/Microsoft.Windows.SDK.Contracts)
+
 # How To Install
 
 1. Download Exe File
