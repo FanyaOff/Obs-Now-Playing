@@ -10,6 +10,7 @@ namespace NWP_App
     {
         static string values;
         private const string logFile = "latest.log";
+        public static string exception = "";
 
         static void Main(string[] args)
         {
@@ -33,18 +34,29 @@ namespace NWP_App
                 {
                 exit:
                     var gsmtcsm = await GetSystemMediaTransportControlsSessionManager();
-                    var mediaProperties = await GetMediaProperties(gsmtcsm.GetCurrentSession());
-                    string newValues = $"{mediaProperties.Artist} - {mediaProperties.Title}";
-                    if (values != newValues)
+                    var session = gsmtcsm.GetCurrentSession();
+                    if (session != null)
                     {
-                        log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Now Playing: {newValues}");
-                        Console.WriteLine($"Now Playing: {newValues}");
-                        log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writing song to txt file");
-                        File.WriteAllText("nowPlayingFile.txt", newValues);
-                        log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writed!");
-                        values = newValues;
-                        goto exit;
+                                            var mediaProperties = await GetMediaProperties(session);
+                        string newValues = $"{mediaProperties.Artist} - {mediaProperties.Title}";
+                        if (values != newValues)
+                        {
+                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Now Playing: {newValues}");
+                            Console.WriteLine($"Now Playing: {newValues}");
+                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writing song to txt file");
+                            File.WriteAllText("nowPlayingFile.txt", newValues);
+                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writed!");
+                            values = newValues;
+                            goto exit;
+                        }
                     }
+                    else
+                    {
+                        string newexception = new Random().Next(1, 600).ToString();
+                        if (newexception != exception)
+                            exception = newexception;
+                    }
+                    Thread.Sleep(500);
                 }
                 catch (Exception e)
                 {
