@@ -1,0 +1,79 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## Rider-specific files
+.idea/
+
+## Visual Studio Code
+.vscode/
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+*.psmdcp
+*.nuproj
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+*.cache
+
+## Logs and database
+*.log
+*.sql
+*.sqlite
+*.mdf
+*.ldf
+
+## DotCover
+*.dotCover
+
+## Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+*.testsettings
+*.vsmdi
+
+## Visual Studio
+.vs/
+Generated_Code/
+
+## Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+## DotNet CLI
+project.assets.json
+project.nuget.cache
+*.csproj.user
+
+## Others
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Publish output
+publish/

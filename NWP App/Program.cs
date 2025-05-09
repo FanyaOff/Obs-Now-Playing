@@ -8,76 +8,105 @@ namespace NWP_App
 {
     internal class Program
     {
-        static string values;
-        private const string logFile = "latest.log";
-        public static string exception = "";
+        private static string currentSong = string.Empty;
+        private const string nowPlayingFile = "nowPlayingFile.txt";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            if (File.Exists(logFile))
-            {
-                File.Delete(logFile);
-                File.WriteAllText(logFile, "----- NWP Log File ----\n");
-            } else
-                File.WriteAllText(logFile, "----- NWP Log File ----\n");
+            Console.WriteLine("NWP Started - Monitoring for song changes");
+            Console.WriteLine("For OBS: add Text source with 'Read from file' option and select nowPlayingFile.txt");
 
-            Console.WriteLine("Starting check thread.");
-            Console.WriteLine("If you want add this to obs, add new source Text, check the box named by Read from file and select created file");
-            updateFile().GetAwaiter().GetResult();
+            File.WriteAllText(nowPlayingFile, string.Empty);
+
+            CancellationTokenSource cts = new CancellationTokenSource();
+            Console.CancelKeyPress += (s, e) => {
+                e.Cancel = true;
+                cts.Cancel();
+            };
+
+            try
+            {
+                await MonitorMediaChanges(cts.Token);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
         }
 
-        public async static Task updateFile()
+        private static async Task MonitorMediaChanges(CancellationToken token)
         {
-            while (true)
+            var sessionManager = await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
+
+            sessionManager.CurrentSessionChanged += async (sender, args) => {
+                await UpdateNowPlaying(sessionManager);
+            };
+
+            await UpdateNowPlaying(sessionManager);
+
+            while (!token.IsCancellationRequested)
             {
                 try
                 {
-                exit:
-                    var gsmtcsm = await GetSystemMediaTransportControlsSessionManager();
-                    var session = gsmtcsm.GetCurrentSession();
-                    if (session != null)
-                    {
-                                            var mediaProperties = await GetMediaProperties(session);
-                        string newValues = $"{mediaProperties.Artist} - {mediaProperties.Title}";
-                        if (values != newValues)
-                        {
-                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Now Playing: {newValues}");
-                            Console.WriteLine($"Now Playing: {newValues}");
-                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writing song to txt file");
-                            File.WriteAllText("nowPlayingFile.txt", newValues);
-                            log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / INFO] Writed!");
-                            values = newValues;
-                            goto exit;
-                        }
-                    }
-                    else
-                    {
-                        string newexception = new Random().Next(1, 600).ToString();
-                        if (newexception != exception)
-                            exception = newexception;
-                    }
-                    Thread.Sleep(500);
+                    await UpdateNowPlaying(sessionManager);
+                    await Task.Delay(5000, token);
                 }
-                catch (Exception e)
+                catch (TaskCanceledException)
                 {
-                    log($"[{DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss")} / ERROR] {e}");
-                    Console.WriteLine("Program is crashed. Check latest.log file. If you have some questions/found bug, open issue on my github - https://github.com/FanyaOff/Obs-Now-Playing");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    await Task.Delay(10000, token);
                 }
             }
         }
 
-        public static void log(string text)
+        private static async Task UpdateNowPlaying(GlobalSystemMediaTransportControlsSessionManager sessionManager)
         {
-            using (StreamWriter w = File.AppendText(logFile))
+            try
             {
-                w.WriteLine(text, "\n");
+                var session = sessionManager.GetCurrentSession();
+                if (session == null)
+                {
+                    if (currentSong != string.Empty)
+                    {
+                        currentSong = string.Empty;
+                        File.WriteAllText(nowPlayingFile, string.Empty);
+                        Console.WriteLine("No active media session detected");
+                    }
+                    return;
+                }
+
+                var mediaProperties = await session.TryGetMediaPropertiesAsync();
+                string newSong = string.Empty;
+
+                if (!string.IsNullOrEmpty(mediaProperties.Artist) || !string.IsNullOrEmpty(mediaProperties.Title))
+                {
+                    newSong = $"{mediaProperties.Artist} - {mediaProperties.Title}".Trim();
+
+                    if (newSong.StartsWith(" - ")) newSong = newSong.Substring(3);
+                    if (newSong.EndsWith(" - ")) newSong = newSong.Substring(0, newSong.Length - 3);
+                }
+
+                if (currentSong != newSong)
+                {
+                    currentSong = newSong;
+                    File.WriteAllText(nowPlayingFile, newSong);
+
+                    if (!string.IsNullOrEmpty(newSong))
+                        Console.WriteLine($"Now Playing: {newSong}");
+                }
+
+                session.MediaPropertiesChanged += async (s, e) => {
+                    await UpdateNowPlaying(sessionManager);
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating media info: {ex.Message}");
             }
         }
-
-        private static async Task<GlobalSystemMediaTransportControlsSessionManager> GetSystemMediaTransportControlsSessionManager() =>
-            await GlobalSystemMediaTransportControlsSessionManager.RequestAsync();
-
-        private static async Task<GlobalSystemMediaTransportControlsSessionMediaProperties> GetMediaProperties(GlobalSystemMediaTransportControlsSession session) =>
-            await session.TryGetMediaPropertiesAsync();
     }
 }
